@@ -52,5 +52,23 @@ module Arel
       end
     end
 
+    class BitwiseXor < InfixOperation
+      def initialize left, right
+        super(:^, left, right)
+      end
+    end
+
+    class BitwiseShiftLeft < InfixOperation
+      def initialize left, right
+        super(:<<, left, right)
+      end
+    end
+
+    class BitwiseShiftRight < InfixOperation
+      def initialize left, right
+        super(:>>, left, right)
+      end
+    end
+
   end
 end
