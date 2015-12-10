@@ -15,5 +15,14 @@ module Arel
     def /(other)
       Arel::Nodes::Division.new(self, other)
     end
+
+    def &(other)
+      Arel::Nodes::BitwiseAnd.new(self, other)
+    end
+
+    def |(other)
+      Arel::Nodes::BitwiseOr.new(self, other)
+    end
+
   end
 end
