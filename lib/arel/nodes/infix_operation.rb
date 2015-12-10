@@ -48,7 +48,7 @@ module Arel
 
     class BitwiseOr < InfixOperation
       def initialize left, right
-        super(:&, left, right)
+        super(:|, left, right)
       end
     end
 

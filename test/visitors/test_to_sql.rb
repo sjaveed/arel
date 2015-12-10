@@ -469,6 +469,31 @@ module Arel
           compile(node).must_equal %(("products"."price" - 7))
         end
 
+        it "should handle BitwiseAnd" do
+          node = Arel::Attributes::Integer.new(Table.new(:products), :bitmap) & 16
+          compile(node).must_equal %(("products"."bitmap" & 16))
+        end
+
+        it "should handle BitwiseOr" do
+          node = Arel::Attributes::Integer.new(Table.new(:products), :bitmap) | 16
+          compile(node).must_equal %(("products"."bitmap" | 16))
+        end
+
+        it "should handle BitwiseXor" do
+          node = Arel::Attributes::Integer.new(Table.new(:products), :bitmap) ^ 16
+          compile(node).must_equal %(("products"."bitmap" ^ 16))
+        end
+
+        it "should handle BitwiseShiftLeft" do
+          node = Arel::Attributes::Integer.new(Table.new(:products), :bitmap) << 4
+          compile(node).must_equal %(("products"."bitmap" << 4))
+        end
+
+        it "should handle BitwiseShiftRight" do
+          node = Arel::Attributes::Integer.new(Table.new(:products), :bitmap) >> 4
+          compile(node).must_equal %(("products"."bitmap" >> 4))
+        end
+
         it "should handle arbitrary operators" do
           node = Arel::Nodes::InfixOperation.new(
             '||',

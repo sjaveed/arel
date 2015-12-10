@@ -17,23 +17,23 @@ module Arel
     end
 
     def &(other)
-      Arel::Nodes::BitwiseAnd.new(self, other)
+      Arel::Nodes::Grouping.new(Arel::Nodes::BitwiseAnd.new(self, other))
     end
 
     def |(other)
-      Arel::Nodes::BitwiseOr.new(self, other)
+      Arel::Nodes::Grouping.new(Arel::Nodes::BitwiseOr.new(self, other))
     end
 
     def ^(other)
-      Arel::Nodes::BitwiseXor.new(self, other)
+      Arel::Nodes::Grouping.new(Arel::Nodes::BitwiseXor.new(self, other))
     end
 
     def <<(other)
-      Arel::Nodes::BitwiseShiftLeft.new(self, other)
+      Arel::Nodes::Grouping.new(Arel::Nodes::BitwiseShiftLeft.new(self, other))
     end
 
     def >>(other)
-      Arel::Nodes::BitwiseShiftRight.new(self, other)
+      Arel::Nodes::Grouping.new(Arel::Nodes::BitwiseShiftRight.new(self, other))
     end
 
   end
