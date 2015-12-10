@@ -24,5 +24,17 @@ module Arel
       Arel::Nodes::BitwiseOr.new(self, other)
     end
 
+    def ^(other)
+      Arel::Nodes::BitwiseXor.new(self, other)
+    end
+
+    def <<(other)
+      Arel::Nodes::BitwiseShiftLeft.new(self, other)
+    end
+
+    def >>(other)
+      Arel::Nodes::BitwiseShiftRight.new(self, other)
+    end
+
   end
 end
