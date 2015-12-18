@@ -504,6 +504,18 @@ module Arel
         end
       end
 
+      describe "Nodes::UnaryOperation" do
+        it "should handle BitwiseNot" do
+          node = ~ Arel::Attributes::Integer.new(Table.new(:products), :bitmap)
+          compile(node).must_equal %( ~ "products"."bitmap")
+        end
+
+        it "should handle arbitrary operators" do
+          node = Arel::Nodes::UnaryOperation.new('!', Arel::Attributes::String.new(Table.new(:products), :active))
+          compile(node).must_equal %( ! "products"."active")
+        end
+      end
+
       describe "Nodes::NotIn" do
         it "should know how to visit" do
           node = @attr.not_in [1, 2, 3]
