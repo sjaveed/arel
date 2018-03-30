@@ -190,7 +190,7 @@ module Arel
 
       describe 'Nodes::Equality' do
         it "should escape strings" do
-          test = Table.new(:users)[:name].eq 'Aaron Patterson'
+          test = @table[:name].eq 'Aaron Patterson'
           compile(test).must_be_like %{
             "users"."name" = 'Aaron Patterson'
           }
