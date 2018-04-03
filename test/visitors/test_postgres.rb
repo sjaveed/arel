@@ -188,6 +188,72 @@ module Arel
         end
       end
 
+      describe "Nodes::NotIn" do
+        it "should know how to visit" do
+          node = @attr.not_in [1, 2, 3]
+          compile(node).must_be_like %{
+            "users"."id" NOT IN (1, 2, 3)
+          }
+        end
+
+        it "should return 1=1 when empty right which is always true" do
+          node = @attr.not_in []
+          compile(node).must_equal '1=1'
+        end
+
+        it 'can handle two dot ranges' do
+          node = @attr.not_between 1..3
+          compile(node).must_equal(
+            %{("users"."id" < 1 OR "users"."id" > 3)}
+          )
+        end
+
+        it 'can handle three dot ranges' do
+          node = @attr.not_between 1...3
+          compile(node).must_equal(
+            %{("users"."id" < 1 OR "users"."id" >= 3)}
+          )
+        end
+
+        it 'can handle ranges bounded by infinity' do
+          node = @attr.not_between 1..Float::INFINITY
+          compile(node).must_be_like %{
+            "users"."id" < 1
+          }
+          node = @attr.not_between(-Float::INFINITY..3)
+          compile(node).must_be_like %{
+            "users"."id" > 3
+          }
+          node = @attr.not_between(-Float::INFINITY...3)
+          compile(node).must_be_like %{
+            "users"."id" >= 3
+          }
+          node = @attr.not_between(-Float::INFINITY..Float::INFINITY)
+          compile(node).must_be_like %{1=0}
+        end
+
+        it 'can handle subqueries' do
+          table = Table.new(:users)
+          subquery = table.project(:id).where(table[:name].eq('Aaron'))
+          node = @attr.not_in subquery
+          compile(node).must_be_like %{
+            "users"."id" NOT IN (SELECT id FROM "users" WHERE "users"."name" = 'Aaron')
+          }
+        end
+
+        it 'interprets an array of nil and false to mean not true' do
+          active_attr = @table[:active]
+          node = active_attr.not_in([true, nil])
+          compile(node).must_be_like %{ "users"."active" IS NOT TRUE }
+        end
+
+        it 'interprets an array of nil and true to mean not false' do
+          active_attr = @table[:active]
+          node = active_attr.not_in([false, nil])
+          compile(node).must_be_like %{ "users"."active" IS NOT FALSE }
+        end
+      end
+
       describe "Nodes::BindParam" do
         it "increments each bind param" do
           query = @table[:name].eq(Arel::Nodes::BindParam.new(1))
