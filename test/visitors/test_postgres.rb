@@ -188,69 +188,69 @@ module Arel
         end
       end
 
-      describe "Nodes::NotIn" do
+      describe "Nodes::In" do
         it "should know how to visit" do
-          node = @attr.not_in [1, 2, 3]
+          node = @attr.in [1, 2, 3]
           compile(node).must_be_like %{
-            "users"."id" NOT IN (1, 2, 3)
+            "users"."id" IN (1, 2, 3)
           }
         end
 
-        it "should return 1=1 when empty right which is always true" do
-          node = @attr.not_in []
-          compile(node).must_equal '1=1'
+        it "should return 1=0 when empty right which is always false" do
+          node = @attr.in []
+          compile(node).must_equal '1=0'
         end
 
         it 'can handle two dot ranges' do
-          node = @attr.not_between 1..3
-          compile(node).must_equal(
-            %{("users"."id" < 1 OR "users"."id" > 3)}
-          )
+          node = @attr.between 1..3
+          compile(node).must_be_like %{
+            "users"."id" BETWEEN 1 AND 3
+          }
         end
 
         it 'can handle three dot ranges' do
-          node = @attr.not_between 1...3
-          compile(node).must_equal(
-            %{("users"."id" < 1 OR "users"."id" >= 3)}
-          )
+          node = @attr.between 1...3
+          compile(node).must_be_like %{
+            "users"."id" >= 1 AND "users"."id" < 3
+          }
         end
 
         it 'can handle ranges bounded by infinity' do
-          node = @attr.not_between 1..Float::INFINITY
+          node = @attr.between 1..Float::INFINITY
           compile(node).must_be_like %{
-            "users"."id" < 1
+            "users"."id" >= 1
           }
-          node = @attr.not_between(-Float::INFINITY..3)
+          node = @attr.between(-Float::INFINITY..3)
           compile(node).must_be_like %{
-            "users"."id" > 3
+            "users"."id" <= 3
           }
-          node = @attr.not_between(-Float::INFINITY...3)
+          node = @attr.between(-Float::INFINITY...3)
           compile(node).must_be_like %{
-            "users"."id" >= 3
+            "users"."id" < 3
           }
-          node = @attr.not_between(-Float::INFINITY..Float::INFINITY)
-          compile(node).must_be_like %{1=0}
+          node = @attr.between(-Float::INFINITY..Float::INFINITY)
+          compile(node).must_be_like %{1=1}
         end
 
         it 'can handle subqueries' do
           table = Table.new(:users)
           subquery = table.project(:id).where(table[:name].eq('Aaron'))
-          node = @attr.not_in subquery
+          node = @attr.in subquery
           compile(node).must_be_like %{
-            "users"."id" NOT IN (SELECT id FROM "users" WHERE "users"."name" = 'Aaron')
+            "users"."id" IN (SELECT id FROM "users" WHERE "users"."name" = 'Aaron')
           }
-        end
-
-        it 'interprets an array of nil and false to mean not true' do
-          active_attr = @table[:active]
-          node = active_attr.not_in([true, nil])
-          compile(node).must_be_like %{ "users"."active" IS NOT TRUE }
         end
 
         it 'interprets an array of nil and true to mean not false' do
           active_attr = @table[:active]
-          node = active_attr.not_in([false, nil])
+          node = active_attr.in([true, nil])
           compile(node).must_be_like %{ "users"."active" IS NOT FALSE }
+        end
+
+        it 'interprets an array of nil and false to mean not true' do
+          active_attr = @table[:active]
+          node = active_attr.in([false, nil])
+          compile(node).must_be_like %{ "users"."active" IS NOT TRUE }
         end
       end
 

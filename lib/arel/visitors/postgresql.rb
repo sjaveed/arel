@@ -46,12 +46,12 @@ module Arel
         visit(o.expr, collector) << " )"
       end
 
-      def visit_Arel_Nodes_NotIn o, collector
+      def visit_Arel_Nodes_In o, collector
         return super(o, collector) unless Array === o.right && o.right.size == 2
 
         sorted_right = o.right.map(&:val).sort { |element| element.nil? ? -1 : 1 }
-        is_not_true = [nil, true] == sorted_right
-        is_not_false = [nil, false] == sorted_right
+        is_not_true = [nil, false] == sorted_right
+        is_not_false = [nil, true] == sorted_right
 
         return super(o, collector) unless is_not_true || is_not_false
 
